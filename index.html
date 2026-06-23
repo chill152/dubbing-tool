@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Dubbing — Trung → Việt</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0715;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px}
+.container{width:100%;max-width:780px}
+.card{background:#0f0b1e;border:1px solid #2a1f55;border-radius:16px;padding:32px;margin-bottom:20px}
+.title{font-size:22px;font-weight:600;color:#fff;border-left:4px solid #7c5cfc;padding-left:14px;margin-bottom:28px}
+.label{font-size:13px;color:#a89dc8;margin-bottom:8px;font-weight:500}
+.url-input{width:100%;background:#1a1230;border:1px solid #3a2d6a;border-radius:10px;color:#e0d8ff;padding:13px 16px;font-size:14px;outline:none;transition:border 0.2s}
+.url-input:focus{border-color:#7c5cfc}
+.section-label{font-size:13px;color:#a89dc8;margin-top:22px;margin-bottom:10px;font-weight:500}
+.toggle-group{display:flex;gap:8px;flex-wrap:wrap}
+.tog{background:#1a1230;border:1px solid #3a2d6a;border-radius:8px;padding:9px 18px;font-size:13px;color:#c0b0f0;cursor:pointer;transition:all 0.15s;outline:none}
+.tog.active{background:#7c5cfc;border-color:#7c5cfc;color:#fff}
+.tog:hover:not(.active){border-color:#7c5cfc}
+.check-row{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px}
+.check-item{display:flex;align-items:center;gap:7px;font-size:13px;color:#c0b0f0;cursor:pointer}
+.check-item input{accent-color:#7c5cfc;width:15px;height:15px}
+.btn-start{width:100%;background:linear-gradient(90deg,#7c5cfc,#a855f7);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:600;padding:16px;cursor:pointer;margin-top:24px;transition:opacity 0.2s;letter-spacing:0.3px}
+.btn-start:hover{opacity:0.88}
+.btn-start:disabled{opacity:0.45;cursor:not-allowed}
+.status-card{background:#0f0b1e;border:1px solid #2a1f55;border-radius:16px;overflow:hidden;display:none}
+.status-header{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid #1e1640}
+.status-title{font-size:16px;font-weight:500;color:#e0d8ff}
+.badge{display:flex;align-items:center;gap:7px;font-size:12px;color:#a78bfa}
+.dot{width:8px;height:8px;border-radius:50%;background:#7c5cfc}
+.dot.pulse{animation:pulse 1.4s infinite}
+.dot.done{background:#52b788;animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+.steps{display:flex;padding:18px 22px;gap:0;border-bottom:1px solid #1e1640;overflow-x:auto}
+.step{display:flex;flex-direction:column;align-items:center;min-width:80px;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;top:15px;left:calc(50% + 16px);width:calc(100% - 32px);height:1px;background:#2a1f55}
+.step-c{width:30px;height:30px;border-radius:50%;background:#1a1230;border:1px solid #3a2d6a;display:flex;align-items:center;justify-content:center;font-size:12px;color:#a89dc8;transition:all 0.3s;flex-shrink:0}
+.step-c.active{background:#7c5cfc;border-color:#7c5cfc;color:#fff}
+.step-c.done{background:#1a3d2b;border-color:#52b788;color:#52b788}
+.step-name{font-size:10px;color:#7a6a9a;margin-top:5px;text-align:center;line-height:1.3}
+.step-name.active{color:#c4b5fd}
+.progress-bar{height:3px;background:#1e1640}
+.progress-fill{height:100%;background:linear-gradient(90deg,#7c5cfc,#a855f7);transition:width 0.5s}
+.log-box{background:#06040f;padding:14px 18px;height:180px;overflow-y:auto;font-family:'Courier New',monospace;font-size:12px;line-height:1.8}
+.log-line{color:#5a4a8a}
+.log-info{color:#a78bfa}
+.log-success{color:#52b788}
+.log-error{color:#f87171}
+.result-section{padding:18px 22px;border-top:1px solid #1e1640;display:none}
+.result-title{font-size:14px;color:#52b788;font-weight:600;margin-bottom:12px}
+.transcript-table{width:100%;border-collapse:collapse;font-size:13px}
+.transcript-table th{text-align:left;color:#a89dc8;font-weight:500;padding:6px 8px;border-bottom:1px solid #1e1640}
+.transcript-table td{padding:8px;color:#c0b0f0;border-bottom:1px solid #0f0b1e;vertical-align:top;line-height:1.6}
+.transcript-table td:first-child{color:#7a6a9a;white-space:nowrap;font-size:11px}
+.btn-dl{display:inline-flex;align-items:center;gap:8px;background:#1a3d2b;border:1px solid #52b788;color:#52b788;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;margin-top:14px;transition:all 0.15s}
+.btn-dl:hover{background:#52b788;color:#06040f}
+.tip-box{background:#0f0b1e;border:1px solid #2a1f55;border-radius:12px;padding:18px 22px;margin-top:20px;font-size:13px;color:#a89dc8;line-height:1.9}
+.tip-box strong{color:#c4b5fd}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="title">Cấu hình Dubbing AI</div>
+
+    <div class="label">URL Video nguồn (YouTube, TikTok, Douyin...)</div>
+    <input class="url-input" id="urlInput" placeholder="https://www.youtube.com/watch?v=..." />
+
+    <div class="section-label">Giọng đọc lồng tiếng</div>
+    <div class="toggle-group">
+      <button class="tog active" onclick="pick(this,'voice','female')">Nữ (HoaiMy)</button>
+      <button class="tog" onclick="pick(this,'voice','male')">Nam (NamMinh)</button>
+    </div>
+
+    <div class="section-label">Xử lý nhạc nền (BGM)</div>
+    <div class="toggle-group">
+      <button class="tog active" onclick="pick(this,'bgm','separate')">Tách AI (Demucs)</button>
+      <button class="tog" onclick="pick(this,'bgm','duck')">Nền nhẹ (Duck -12dB)</button>
+      <button class="tog" onclick="pick(this,'bgm','none')">Không nhạc nền</button>
+    </div>
+
+    <div class="section-label">Tùy chọn</div>
+    <div class="check-row">
+      <label class="check-item"><input type="checkbox" id="chkSub" checked /> Ghi phụ đề tiếng Việt (Hardsub)</label>
+      <label class="check-item"><input type="checkbox" id="chkScript" checked /> Xuất transcript song ngữ</label>
+    </div>
+
+    <button class="btn-start" id="btnStart" onclick="startDubbing()">🎙 Bắt đầu xử lý lồng tiếng</button>
+  </div>
+
+  <div class="status-card" id="statusCard">
+    <div class="status-header">
+      <span class="status-title">Trạng thái xử lý</span>
+      <span class="badge"><span class="dot pulse" id="dot"></span><span id="statusText">Đang chạy...</span></span>
+    </div>
+    <div class="steps" id="stepsRow">
+      <div class="step"><div class="step-c" id="s1">1</div><div class="step-name" id="sn1">Tải Video</div></div>
+      <div class="step"><div class="step-c" id="s2">2</div><div class="step-name" id="sn2">Tách Âm</div></div>
+      <div class="step"><div class="step-c" id="s3">3</div><div class="step-name" id="sn3">ASR</div></div>
+      <div class="step"><div class="step-c" id="s4">4</div><div class="step-name" id="sn4">Dịch AI</div></div>
+      <div class="step"><div class="step-c" id="s5">5</div><div class="step-name" id="sn5">TTS AI</div></div>
+      <div class="step"><div class="step-c" id="s6">6</div><div class="step-name" id="sn6">Ghép Video</div></div>
+      <div class="step"><div class="step-c" id="s7">7</div><div class="step-name" id="sn7">Hoàn tất</div></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+    <div class="log-box" id="logBox"></div>
+
+    <div class="result-section" id="resultSection">
+      <div class="result-title">✓ Lồng tiếng hoàn tất!</div>
+      <table class="transcript-table">
+        <thead><tr><th>Thời gian</th><th>Tiếng Trung 🇨🇳</th><th>Tiếng Việt 🇻🇳</th></tr></thead>
+        <tbody id="transcriptBody"></tbody>
+      </table>
+      <a class="btn-dl" id="dlBtn" href="#" target="_blank">⬇ Tải video đã lồng tiếng</a>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <strong>Hướng dẫn sử dụng:</strong><br>
+    1. Mở CMD → vào thư mục chứa file → gõ <strong>python server.py</strong><br>
+    2. Dán URL video tiếng Trung vào ô trên → nhấn nút xử lý<br>
+    3. Đợi khoảng 3–10 phút tuỳ độ dài video<br>
+    4. Tải video đã lồng tiếng về khi hoàn tất<br><br>
+    <strong>Lưu ý:</strong> Server phải đang chạy tại <strong>http://localhost:5000</strong>
+  </div>
+</div>
+
+<script>
+const sel={voice:'female',bgm:'separate'};
+const groups={voice:0,bgm:1};
+
+function pick(el,key,val){
+  sel[key]=val;
+  const idx=groups[key];
+  document.querySelectorAll('.toggle-group')[idx].querySelectorAll('.tog').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function fmt(s){return new Date().toLocaleTimeString('vi-VN',{hour12:false});}
+
+function log(msg,type=''){
+  const b=document.getElementById('logBox');
+  const d=document.createElement('div');
+  d.className='log-line'+(type?' log-'+type:'');
+  d.textContent=`[${fmt()}] ${msg}`;
+  b.appendChild(d);
+  b.scrollTop=b.scrollHeight;
+}
+
+function setStep(n){
+  for(let i=1;i<=7;i++){
+    const c=document.getElementById('s'+i),nm=document.getElementById('sn'+i);
+    c.classList.remove('active','done');nm.classList.remove('active');
+    if(i<n){c.classList.add('done');c.textContent='✓';}
+    else if(i===n){c.classList.add('active');c.textContent=i;nm.classList.add('active');}
+    else c.textContent=i;
+  }
+  document.getElementById('pbar').style.width=((n-1)/7*100)+'%';
+}
+
+async function startDubbing(){
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url){alert('Vui lòng nhập URL video!');return;}
+
+  document.getElementById('statusCard').style.display='block';
+  document.getElementById('resultSection').style.display='none';
+  document.getElementById('logBox').innerHTML='';
+  document.getElementById('btnStart').disabled=true;
+  document.getElementById('dot').className='dot pulse';
+  document.getElementById('statusText').textContent='Đang xử lý...';
+  setStep(1);
+
+  log('Gửi yêu cầu đến server local...','info');
+  log(`URL: ${url}`,'info');
+  log(`Giọng: ${sel.voice} | BGM: ${sel.bgm}`,'info');
+
+  try{
+    const res=await fetch('http://localhost:5000/api/dub',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({url, voice:sel.voice, bgm:sel.bgm})
+    });
+
+    if(!res.ok) throw new Error(`Server lỗi: ${res.status}`);
+    const data=await res.json();
+
+    if(!data.success) throw new Error(data.error||'Lỗi không xác định');
+
+    // Hiển thị kết quả
+    setStep(7);
+    document.getElementById('pbar').style.width='100%';
+    document.getElementById('dot').className='dot done';
+    document.getElementById('statusText').textContent='Hoàn tất!';
+    log('✓ Lồng tiếng hoàn tất!','success');
+
+    // Transcript
+    if(data.transcript && document.getElementById('chkScript').checked){
+      const tbody=document.getElementById('transcriptBody');
+      tbody.innerHTML='';
+      data.transcript.forEach(s=>{
+        const tr=document.createElement('tr');
+        const t=s.start?`${Math.floor(s.start/60)}:${String(Math.floor(s.start%60)).padStart(2,'0')}`:'--';
+        tr.innerHTML=`<td>${t}</td><td>${s.zh}</td><td>${s.vi}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('dlBtn').href=`http://localhost:5000/api/download/${data.job_id}`;
+    document.getElementById('resultSection').style.display='block';
+
+  }catch(err){
+    log('❌ Lỗi: '+err.message,'error');
+    log('Kiểm tra: server có đang chạy không? (python server.py)','error');
+    document.getElementById('dot').className='dot';
+    document.getElementById('dot').style.background='#f87171';
+    document.getElementById('statusText').textContent='Có lỗi xảy ra';
+  }finally{
+    document.getElementById('btnStart').disabled=false;
+  }
+}
+</script>
+</body>
+</html>
