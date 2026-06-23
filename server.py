@@ -8,7 +8,7 @@ import google.generativeai as genai
 app = Flask(__name__, static_folder=".")
 CORS(app)
 
-GEMINI_API_KEY = "AIzaSy-xxxxxxxxxxxxxxxxxxxx"  # <-- Dán Gemini API key vào đây
+GEMINI_API_KEY = "AQ.Ab8RN6KeSno_jy9EJK_uExePgZasBk4PhBo9ze31MT1Tsv2FJA"  # <-- Dán Gemini API key vào đây
 OUTPUT_DIR = "./output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
