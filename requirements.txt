@@ -1,0 +1,7 @@
+flask
+flask-cors
+openai-whisper
+anthropic
+edge-tts
+yt-dlp
+demucs
